@@ -77,11 +77,11 @@ class creation:
         # beta is the average time interval between job arrivals
         # let beta equals half of the average time of single operation
         self.beta = self.avg_pt / (self.m_per_wc * self.E_utliz)
-        # number of new jobs arrive within simulation
+        # number of new jobs arrive during the simulation
         self.total_no = np.round(self.span/self.beta).astype(int)
-        # the interval between job arrivals by exponential distribution
+        # the interval between job arrivals follows the exponential distribution
         self.arrival_interval = np.random.exponential(self.beta, self.total_no).round()
-        # dynamically change the random seed to avoid extreme case
+        # settings
         if 'realistic_var' in kwargs and kwargs['realistic_var']:
             self.ptl_generation = self.ptl_generation_realistic
             self.realistic_var = kwargs['realistic_var']
@@ -194,7 +194,6 @@ class creation:
                 self.wc_list[first_workcenter].routing_event.succeed()
             except:
                 pass
-            #print([m.remaining_pt_list for m in self.m_list])
 
     def ptl_generation_random(self):
         ptl = np.random.randint(self.pt_range[0], self.pt_range[1], size = [self.no_machines])

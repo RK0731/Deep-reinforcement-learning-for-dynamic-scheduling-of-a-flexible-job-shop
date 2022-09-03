@@ -1,5 +1,9 @@
 import numpy as np
 
+'''
+may change setting during training or experiment
+'''
+
 class creation:
     def __init__(self, env, target, event_intervals, pt_range_list, **kwargs):
         self.env = env

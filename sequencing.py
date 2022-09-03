@@ -3,7 +3,9 @@ import random
 import numpy as np
 
 '''
-this module contains the job sequencing rules used for comparison
+this module contains the job sequencing rules used in the experiment
+sequencing agents may choose to follow one of following rules
+or choose to use trained parameters for decision-making
 '''
 
 # Benchmark, as the worst possible case

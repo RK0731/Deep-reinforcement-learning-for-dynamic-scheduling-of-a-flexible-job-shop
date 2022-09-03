@@ -473,7 +473,7 @@ class machine:
     # those functions are called only if self.sequencing_learning_event is triggered
     # called only upon the completion of all operations of a job
     # it calculates the reward for all machines that job went through
-    # hence a complete experience is constructed for learning
+    # then a complete experience is constructed for learning
 
     def get_reward1(self):
         slack = self.before_op_slack

@@ -68,34 +68,6 @@ class routing_brain:
             self.train = self.train_DDQN
             for wc in self.wc_list:
                 wc.build_state = self.state_deeper
-        elif 'TEST' in kwargs and kwargs['TEST']:
-            print("---X TEST mode ON X---")
-            self.address_seed = "{}\\routing_models\\TEST_state_dict"
-            self.routing_action_NN = build_network_TEST(self.input_size, self.output_size)
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_deeper
-            self.train = self.train_DDQN
-            for wc in self.wc_list:
-                wc.build_state = self.state_deeper
-        elif 'Lang2020' in kwargs and kwargs['Lang2020']:
-            print("peer comparison Lang")
-            self.address_seed = "{}\\routing_models\\Lang2020"+'{}wc{}m'.format(len(wc_list),len(m_list))
-            self.input_size = self.m_per_wc*2 + 1
-            self.routing_action_NN = build_network_Lang2020(self.input_size, self.output_size)
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_Lang2020
-            self.train = self.train_DDQN
-            for wc in self.wc_list:
-                wc.build_state = self.state_Lang2020
-        elif 'Luo2020' in kwargs and kwargs['Luo2020']:
-            print("peer comparison Luo")
-            self.address_seed = "{}\\routing_models\\Luo2020"+'{}wc{}m'.format(len(wc_list),len(m_list))
-            self.routing_action_NN = build_network_TEST(self.input_size, self.output_size)
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_deeper
-            self.train = self.train_DDQN
-            for wc in self.wc_list:
-                wc.build_state = self.state_deeper
         else:
             print("---> DEFAULT mode ON <---")
             if self.m_per_wc == 2:

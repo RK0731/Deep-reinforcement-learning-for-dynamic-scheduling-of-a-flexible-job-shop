@@ -4,6 +4,12 @@ import sys
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
+'''
+this module simulates the dynamic arrival of jobs
+the feature and timing of new jobs are determined by three types of factors:
+the range of processing time, due date tightness, and the expected utilization rate of system
+'''
+
 class creation:
     def __init__ (self, env, span, machine_list, workcenter_list, pt_range, due_tightness, E_utliz, **kwargs):
         if 'seed' in kwargs:

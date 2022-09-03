@@ -5,6 +5,8 @@ import torch
 
 '''
 this module contains the machine routing rules used for comparison
+routing agents may choose to follow one of following rules
+or choose to use trained parameters for decision-making
 '''
 
 # Benchmark, as the worst possible case

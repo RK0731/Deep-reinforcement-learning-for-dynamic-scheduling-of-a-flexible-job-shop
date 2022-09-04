@@ -11,6 +11,10 @@ import torch.nn.functional as F
 from tabulate import tabulate
 import sequencing
 
+'''
+SEQUENCING BRAIN -> deep reinforcement learning-based sequencing agent
+'''
+
 class sequencing_brain:
     def __init__(self, env, job_creator, all_machines, target_machines, warm_up, span, *args, **kwargs):
         # initialize the environment and the machines to be controlled

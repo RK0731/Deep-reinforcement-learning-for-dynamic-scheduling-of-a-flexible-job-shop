@@ -16,7 +16,7 @@ import heterogeneity_creation
 import validation_S # for co-training
 
 """
-THIS IS THE MODULE FOR TRAINING
+THIS IS THE MODULE FOR ROUTING AGENT TRAINING
 """
 
 class shopfloor:
@@ -65,12 +65,11 @@ class shopfloor:
 
         '''STEP 5: set up the brains for workcenters'''
         self.routing_brain = brain_workcenter_R.routing_brain(self.env, self.job_creator, \
-        self.m_list, self.wc_list, self.span/5, self.span)
+            self.m_list, self.wc_list, self.span/5, self.span)
 
         '''STEP 6: run the simulaiton'''
         env.run()
         self.routing_brain.check_parameter()
-        self.routing_brain.loss_record_output(save=1)
 
 # create the environment instance for simulation
 env = simpy.Environment()

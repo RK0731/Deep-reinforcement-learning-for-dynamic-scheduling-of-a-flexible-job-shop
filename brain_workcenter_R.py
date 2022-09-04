@@ -10,6 +10,10 @@ import torch.nn.functional as F
 
 from tabulate import tabulate
 
+'''
+ROUTING BRAIN -> deep reinforcement learning-based routing agent
+'''
+
 class routing_brain:
     def __init__(self, env, job_creator, m_list, wc_list, warm_up, span, *args, **kwargs):
         # initialize the environment and the workcenter to be controlled
@@ -31,60 +35,22 @@ class routing_brain:
         # learning rate
         self.lr = 0.01
         # specify the address to store the model
-        if 'IQL' in kwargs and kwargs['IQL']:
-            print("---X IQL mode ON X---")
-            self.address_seed = "{}\\routing_models\\independent\\IQL_"+'{}wc{}m'.format(len(wc_list),len(m_list))+"_{}"
-            if self.m_per_wc == 2:
-                self.routing_action_NN = build_network_independent_small(self.input_size, self.output_size, len(self.wc_list))
-            elif self.m_per_wc == 3:
-                self.routing_action_NN = build_network_independent_medium(self.input_size, self.output_size, len(self.wc_list))
-            elif self.m_per_wc == 4:
-                self.routing_action_NN = build_network_independent_large(self.input_size, self.output_size, len(self.wc_list))
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_deeper
-            self.train = self.train_IQL
-            for wc in self.wc_list:
-                wc.build_state = self.state_deeper
-        elif 'I_DDQN' in kwargs and kwargs['I_DDQN']:
-            print("---X I_DDQN mode ON X---")
-            self.address_seed = "{}\\routing_models\\independent\\I_DDQN_"+'{}wc{}m'.format(len(wc_list),len(m_list))+"_{}"
-            if self.m_per_wc == 2:
-                self.routing_action_NN = build_network_independent_small(self.input_size, self.output_size, len(self.wc_list))
-            elif self.m_per_wc == 3:
-                self.routing_action_NN = build_network_independent_medium(self.input_size, self.output_size, len(self.wc_list))
-            elif self.m_per_wc == 4:
-                self.routing_action_NN = build_network_independent_large(self.input_size, self.output_size, len(self.wc_list))
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_deeper
-            self.train = self.train_I_DDQN
-            for wc in self.wc_list:
-                wc.build_state = self.state_deeper
-        elif 'I_DDQN' in kwargs and kwargs['I_DDQN']:
-            print("---X small mode ON X---")
-            self.address_seed = "{}\\routing_models\\small_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+        print("---> DEFAULT mode ON <---")
+        if self.m_per_wc == 2:
             self.routing_action_NN = build_network_small(self.input_size, self.output_size)
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_deeper
-            self.train = self.train_DDQN
-            for wc in self.wc_list:
-                wc.build_state = self.state_deeper
-        else:
-            print("---> DEFAULT mode ON <---")
-            if self.m_per_wc == 2:
-                self.routing_action_NN = build_network_small(self.input_size, self.output_size)
-                self.address_seed = "{}\\routing_models\\small_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
-            elif self.m_per_wc == 3:
-                self.routing_action_NN = build_network_medium(self.input_size, self.output_size)
-                self.address_seed = "{}\\routing_models\\medium_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
-            elif self.m_per_wc == 4:
-                self.routing_action_NN = build_network_large(self.input_size, self.output_size)
-                self.address_seed = "{}\\routing_models\\large_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
-            # shared functions
-            self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
-            self.build_state = self.state_deeper
-            self.train = self.train_DDQN
-            for wc in self.wc_list:
-                wc.build_state = self.state_deeper
+            self.address_seed = "{}\\routing_models\\small_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+        elif self.m_per_wc == 3:
+            self.routing_action_NN = build_network_medium(self.input_size, self.output_size)
+            self.address_seed = "{}\\routing_models\\medium_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+        elif self.m_per_wc == 4:
+            self.routing_action_NN = build_network_large(self.input_size, self.output_size)
+            self.address_seed = "{}\\routing_models\\large_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+        # shared functions
+        self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
+        self.build_state = self.state_deeper
+        self.train = self.train_DDQN
+        for wc in self.wc_list:
+            wc.build_state = self.state_deeper
 
         ''' specify the optimizer '''
         self.optimizer = optim.SGD(self.routing_action_NN.parameters(), lr=self.lr, momentum = 0.9)
@@ -108,26 +74,10 @@ class routing_brain:
         self.loss_record = []
         self.delete_obsolete_experience = self.env.event()
         # processes
-        if 'global_reward' in kwargs and kwargs['global_reward']:
-            self.address_seed += "_globalR"
-            for m in self.m_list:
-                m.routing_global_reward = True
-            for wc in self.wc_list:
-                wc.build_routing_experience = wc.complete_experience_global_reward
-        if 'IQL' in kwargs and kwargs['IQL'] or 'I_DDQN' in kwargs and kwargs['I_DDQN'] :
-            self.env.process(self.training_process_independent())
-            self.env.process(self.update_rep_memo_independent_process())
-            self.rep_memo = {} # replace the list by dict
-            for wc in self.wc_list:
-                self.rep_memo[wc.wc_idx] = []
-            self.build_initial_rep_memo = self.build_initial_rep_memo_independent
-            self.env.process(self.update_training_parameters_process())
-            #self.rep_memo_size /= self.m_no # size for independent replay memory
-        else: # default mode is parameter sharing
-            self.env.process(self.training_process_parameter_sharing())
-            self.env.process(self.update_rep_memo_parameter_sharing_process())
-            self.build_initial_rep_memo = self.build_initial_rep_memo_parameter_sharing
-            self.env.process(self.update_learning_rate_process())
+        self.env.process(self.training_process_parameter_sharing())
+        self.env.process(self.update_rep_memo_parameter_sharing_process())
+        self.build_initial_rep_memo = self.build_initial_rep_memo_parameter_sharing
+        self.env.process(self.update_learning_rate_process())
         # finalize the address_seed
         self.address_seed += ".pt"
         # some shared process
@@ -352,23 +302,6 @@ class routing_brain:
         torch.save(self.routing_action_NN.state_dict(), self.address_seed.format(sys.path[0]))
         print("Training terminated, store trained parameters to: {}".format(self.address_seed))
 
-    def training_process_independent(self):
-        yield self.env.timeout(self.warm_up)
-        for i in range(10):
-            for wc in self.wc_list:
-                self.train(wc.wc_idx)
-        while self.env.now < self.span:
-            for wc in self.wc_list:
-                self.train(wc.wc_idx)
-            yield self.env.timeout(self.routing_action_NN_training_interval)
-        for wc in self.wc_list:
-            print('FINAL - replay_memory of machine %s is:'%wc.wc_idx)
-            print(tabulate(self.rep_memo[wc.wc_idx],headers = ['s_t','a_t','s_t+1','r_t']))
-            address = self.address_seed.format(sys.path[0],str(wc.wc_idx))
-            torch.save(self.routing_action_NN.network_dict[wc.wc_idx].state_dict(), address)
-        print("Training terminated, store trained parameters to: {}".format(self.address_seed))
-
-
     # synchronize the ANN and TNN, and some settings
     def update_training_setting_process(self):
         # one second after the initial training, so we can have a slightly better target network
@@ -487,49 +420,6 @@ class routing_brain:
         # print('perform the optimization of parameters')
         # optimize the parameters
         self.optimizer.step()
-
-    def train_IQL(self, wc_idx): # VANILLA independent DQN, as the baseline
-        size = min(len(self.rep_memo[wc_idx]),self.minibatch_size)
-        minibatch = random.sample(self.rep_memo[wc_idx],size)
-        sample_s0_batch = torch.stack([data[0] for data in minibatch], dim=0).reshape(size,1,self.input_size)
-        sample_s1_batch = torch.stack([data[3] for data in minibatch], dim=0).reshape(size,1,self.input_size)
-        sample_a0_batch = torch.stack([data[1] for data in minibatch], dim=0).reshape(size,1)
-        sample_r0_batch = torch.stack([data[2] for data in minibatch], dim=0).reshape(size,1)
-        Q_0 = self.routing_action_NN.forward(sample_s0_batch, wc_idx)
-        current_value = Q_0.gather(1, sample_a0_batch)
-        Q_1 = self.routing_target_NN.forward(sample_s1_batch, wc_idx).detach()
-        max_Q_1, max_Q_1_idx = torch.max(Q_1, dim=1) # use action network to get action, rather than max operation
-        next_state_value = (self.discount_factor * max_Q_1).reshape([size,1])
-        target_value = (sample_r0_batch + next_state_value)
-        loss = self.routing_action_NN.loss_func(current_value, target_value)
-        #self.loss_time_record.append(self.env.now)
-        self.loss_record.append(float(loss))
-        self.routing_action_NN.optimizer_dict[wc_idx].zero_grad()
-        loss.backward(retain_graph=True)
-        self.routing_action_NN.optimizer_dict[wc_idx].step()
-
-    def train_I_DDQN(self, wc_idx): # VANILLA independent DQN, as the baseline
-        size = min(len(self.rep_memo[wc_idx]),self.minibatch_size)
-        minibatch = random.sample(self.rep_memo[wc_idx],size)
-        sample_s0_batch = torch.stack([data[0] for data in minibatch], dim=0).reshape(size,1,self.input_size)
-        sample_s1_batch = torch.stack([data[3] for data in minibatch], dim=0).reshape(size,1,self.input_size)
-        sample_a0_batch = torch.stack([data[1] for data in minibatch], dim=0).reshape(size,1)
-        sample_r0_batch = torch.stack([data[2] for data in minibatch], dim=0).reshape(size,1)
-        Q_0 = self.routing_action_NN.forward(sample_s0_batch, wc_idx)
-        current_value = Q_0.gather(1, sample_a0_batch)
-        Q_1_action = self.routing_action_NN.forward(sample_s1_batch, wc_idx).detach()
-        Q_1_target = self.routing_target_NN.forward(sample_s1_batch, wc_idx).detach()
-        max_Q_1_action, max_Q_1_action_idx = torch.max(Q_1_action, dim=1) # use action network to get action, rather than max operation
-        max_Q_1_action_idx = max_Q_1_action_idx.reshape([size,1])
-        next_state_value = Q_1_target.gather(1, max_Q_1_action_idx)
-        next_state_value *= self.discount_factor
-        target_value = (sample_r0_batch + next_state_value)
-        loss = self.routing_action_NN.loss_func(current_value, target_value)
-        #self.loss_time_record.append(self.env.now)
-        self.loss_record.append(float(loss))
-        self.routing_action_NN.optimizer_dict[wc_idx].zero_grad()
-        loss.backward(retain_graph=True)
-        self.routing_action_NN.optimizer_dict[wc_idx].step()
 
     def loss_record_output(self,**kwargs):
         fig = plt.figure(figsize=(10,5.5))
@@ -781,132 +671,6 @@ class build_network_TEST(nn.Module):
         x = self.fc6(x)
         x = self.tanh(x)
         x = self.fc7(x)
-        return x
-
-'''
-benchmarks
-'''
-
-class build_network_independent_small(nn.Module):
-    def __init__(self, input_size, output_size, wc_no):
-        super(build_network_independent_small, self).__init__()
-        self.lr = 0.01
-        # size of layers
-        layer_1 = 16
-        layer_2 = 16
-        layer_3 = 16
-        layer_4 = 8
-        layer_5 = 8
-        # FCNN
-        self.MLP = nn.Sequential(
-                                nn.InstanceNorm1d(input_size),
-                                nn.Flatten(),
-                                nn.Linear(input_size, layer_1),
-                                nn.Tanh(),
-                                nn.Linear(layer_1, layer_2),
-                                nn.Tanh(),
-                                nn.Linear(layer_2, layer_3),
-                                nn.Tanh(),
-                                nn.Linear(layer_3, layer_4),
-                                nn.Tanh(),
-                                nn.Linear(layer_4, output_size)
-                                )
-        self.loss_func = F.smooth_l1_loss
-        self.network_dict = {}
-        self.optimizer_dict = {}
-        for i in range(wc_no):
-            # for each agent, its module list contains shared and independent layers
-            self.network_dict[i] = copy.deepcopy(self.MLP)
-            # accompanied by an independent optimizer
-            self.optimizer_dict[i] = optim.SGD(self.network_dict[i].parameters(), lr=self.lr, momentum = 0.9)
-
-    def forward(self, x, wc_idx):
-        #print('original',x)
-        x = self.network_dict[wc_idx](x)
-        #print('output',x)
-        return x
-
-class build_network_independent_medium(nn.Module):
-    def __init__(self, input_size, output_size, wc_no):
-        super(build_network_independent_medium, self).__init__()
-        self.lr = 0.01
-        # size of layers
-        layer_1 = 32
-        layer_2 = 32
-        layer_3 = 16
-        layer_4 = 8
-        layer_5 = 8
-        # FCNN
-        self.MLP = nn.Sequential(
-                                nn.InstanceNorm1d(input_size),
-                                nn.Flatten(),
-                                nn.Linear(input_size, layer_1),
-                                nn.Tanh(),
-                                nn.Linear(layer_1, layer_2),
-                                nn.Tanh(),
-                                nn.Linear(layer_2, layer_3),
-                                nn.Tanh(),
-                                nn.Linear(layer_3, layer_4),
-                                nn.Tanh(),
-                                nn.Linear(layer_4, output_size)
-                                )
-        self.loss_func = F.smooth_l1_loss
-        self.network_dict = {}
-        self.optimizer_dict = {}
-        for i in range(wc_no):
-            # for each agent, its module list contains shared and independent layers
-            self.network_dict[i] = copy.deepcopy(self.MLP)
-            # accompanied by an independent optimizer
-            self.optimizer_dict[i] = optim.SGD(self.network_dict[i].parameters(), lr=self.lr, momentum = 0.9)
-
-    def forward(self, x, wc_idx):
-        #print('original',x)
-        x = self.network_dict[wc_idx](x)
-        #print('output',x)
-        return x
-
-class build_network_independent_large(nn.Module):
-    def __init__(self, input_size, output_size, wc_no):
-        super(build_network_independent_large, self).__init__()
-        self.lr = 0.01
-        # size of layers
-        layer_1 = 64
-        layer_2 = 64
-        layer_3 = 48
-        layer_4 = 32
-        layer_5 = 16
-        layer_6 = 16
-        # FCNN
-        self.MLP = nn.Sequential(
-                                nn.InstanceNorm1d(input_size),
-                                nn.Flatten(),
-                                nn.Linear(input_size, layer_1),
-                                nn.Tanh(),
-                                nn.Linear(layer_1, layer_2),
-                                nn.Tanh(),
-                                nn.Linear(layer_2, layer_3),
-                                nn.Tanh(),
-                                nn.Linear(layer_3, layer_4),
-                                nn.Tanh(),
-                                nn.Linear(layer_4, layer_5),
-                                nn.Tanh(),
-                                nn.Linear(layer_5, layer_6),
-                                nn.Tanh(),
-                                nn.Linear(layer_6, output_size)
-                                )
-        self.loss_func = F.smooth_l1_loss
-        self.network_dict = {}
-        self.optimizer_dict = {}
-        for i in range(wc_no):
-            # for each agent, its module list contains shared and independent layers
-            self.network_dict[i] = copy.deepcopy(self.MLP)
-            # accompanied by an independent optimizer
-            self.optimizer_dict[i] = optim.SGD(self.network_dict[i].parameters(), lr=self.lr, momentum = 0.9)
-
-    def forward(self, x, wc_idx):
-        #print('original',x)
-        x = self.network_dict[wc_idx](x)
-        #print('output',x)
         return x
 
 

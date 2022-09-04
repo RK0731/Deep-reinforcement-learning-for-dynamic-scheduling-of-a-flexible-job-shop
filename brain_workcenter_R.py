@@ -909,32 +909,4 @@ class build_network_independent_large(nn.Module):
         #print('output',x)
         return x
 
-'''
-peer comparison
-'''
-class build_network_Lang2020(nn.Module):
-    def __init__(self, input_size, output_size):
-        super(build_network_Lang2020, self).__init__()
-        # size of layers
-        layer_1 = 16
-        layer_2 = 16
-        # FCNN
-        self.fc1 = nn.Linear(input_size, layer_1)
-        self.fc2 = nn.Linear(layer_1, layer_2)
-        self.fc3 = nn.Linear(layer_2, output_size)
-        # activation functions
-        self.relu = nn.ReLU()
-        self.instancenorm = nn.InstanceNorm1d(input_size)
-        self.flatten = nn.Flatten()
-        # Huber loss function
-        self.loss_func = F.smooth_l1_loss
 
-    def forward(self, x, *args):
-        x = self.instancenorm(x)
-        x = self.flatten(x)
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.fc2(x)
-        x = self.relu(x)
-        x = self.fc3(x)
-        return x

@@ -52,7 +52,7 @@ class shopfloor:
         # env, span, machine_list, workcenter_list, number_of_jobs, pt_range, due_tightness, E_utliz
         if 'seed' in kwargs:
             self.job_creator = job_creation.creation(self.env, self.span, self.m_list, self.wc_list, \
-            [10,20], 2, 0.9, seed=kwargs['seed'])
+                [10,20], 2, 0.9, seed=kwargs['seed'])
             #self.job_creator.output()
         else:
             print("WARNING: seed is not fixed !!")
@@ -109,17 +109,17 @@ benchmark = ['EA','CT','ET','TT','UT','SQ']
 #benchmark = ['EA','CT']
 
 DRLs = ['validated']
-reward_mechanism = [0]
+reward_mechanism = [False]
 
 title = benchmark + ['DRL_RA']
 span = 1000
-m_no = 6
+m_no = 9
 wc_no = 3
 sum_record = []
 benchmark_record = []
 max_record = []
 rate_record = []
-iteration = 100
+iteration = 1
 # dont mess with above one-
 export_result = 1
 
@@ -141,8 +141,8 @@ for run in range(iteration):
         benchmark_record[run].append(cumulative_tard[-1])
         max_record[run].append(tard_max)
         rate_record[run].append(tard_rate)
+    # and extra run with DRL
     for idx,x in enumerate(DRLs):
-        # and extra run with DRL
         env = simpy.Environment()
         spf = shopfloor(env, span, m_no, wc_no, arch = x, global_reward = reward_mechanism[idx], seed = seed)
         spf.simulation()

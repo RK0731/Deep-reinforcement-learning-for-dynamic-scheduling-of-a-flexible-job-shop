@@ -62,13 +62,11 @@ class shopfloor:
 
         '''STEP 5: set up the brains for machines'''
         self.sqc_brain = brain_machine_S.sequencing_brain(self.env, self.job_creator, self.m_list, self.m_list, self.span/10, self.span, \
-        MC = 1, IQL = 0, I_DDQN = 0, \
-        reward_function = 13)
+        MC = 1,  reward_function = 1)
 
-        # STEP 8: the simulaiton
+        '''STEP 6: the simulaiton'''
         env.run()
         self.sqc_brain.check_parameter()
-        self.sqc_brain.loss_record_output(save=0)
 
 # create the environment instance for simulation
 env = simpy.Environment()

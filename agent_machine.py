@@ -6,7 +6,13 @@ import numpy as np
 import torch
 from tabulate import tabulate
 import sequencing
-import routing
+
+'''
+this is the simulation model of machine
+when machine becomes idle and more than one jobs are queued to be processed
+then machine/sequencing agent would pick one job from its queue for the next operation
+either by a sequencing rule or trained parameters
+'''
 
 class machine:
     def __init__(self, env, index, *args, **kwargs):
@@ -159,6 +165,7 @@ class machine:
                 # after replenishement, update information of queuing jobs
                 self.state_update_all()
 
+    # when there's no job queueing, machine becomes idle
     def starvation(self):
         #print('STARVATION *BEGIN*: machine %s at time %s' %(self.m_idx, self.env.now))
         # set the self.sufficient_stock event to untriggered
@@ -170,6 +177,7 @@ class machine:
             yield self.env.process(self.breakdown())
         #print('STARVATION *END*: machine %s at time: %s'%(self.m_idx, self.env.now))
 
+    # or when machine failure happens
     def breakdown(self):
         print('********', self.m_idx, "breakdown at time", self.env.now, '********')
         start = self.env.now
@@ -187,7 +195,7 @@ class machine:
     '''
 
 
-    # update lots information that will be used for calculating the rewards
+    # update information that will be used for calculating the rewards
     def before_operation(self):
         # number of jobs that to be sequenced, and their ttd and slack
         self.waiting_jobs = len(self.queue)
@@ -474,7 +482,9 @@ class machine:
     # called only upon the completion of all operations of a job
     # it calculates the reward for all machines that job went through
     # then a complete experience is constructed for learning
+    # change the parameters to achieve better performance in different scenarios
 
+    # example of a real reward function
     def get_reward1(self):
         slack = self.before_op_slack
         critical_level = 1 - slack / (np.absolute(slack) + 50)
@@ -500,7 +510,7 @@ class machine:
         r_t = torch.tensor(rwd , dtype=torch.float)
         return r_t
 
-    def add_global_reward_RA(self): # BASELINE RULE !!!
+    def add_global_reward_RA(self): 
         job_record = self.job_creator.production_record[self.job_idx]
         path = job_record[1]
         queued_time = np.array(job_record[2])

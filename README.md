@@ -11,10 +11,12 @@ Feel free to revise the code, and good luck with your research!
 If you make use of the code in your work, please cite our paper (Bibtex below):
 
     @article{liu2022deep,
-      title=    {Deep reinforcement learning for dynamic scheduling of a flexible job shop},
-      author=   {Liu, Renke and Piplani, Rajesh and Toro, Carlos},
-      journal=  {International Journal of Production Research},
-      pages=    {1--21},
-      year=     {2022},
-      publisher= {Taylor \& Francis}
+      title={Deep reinforcement learning for dynamic scheduling of a flexible job shop},
+      author={Liu, Renke and Piplani, Rajesh and Toro, Carlos},
+      journal={International Journal of Production Research},
+      volume={60}
+      number={13}
+      pages={4049--4069},
+      year={2022},
+      publisher={Taylor \& Francis}
     }

@@ -5,8 +5,13 @@ import random
 import numpy as np
 import torch
 from tabulate import tabulate
-import sequencing
 import routing
+
+'''
+this is the simulation model of the workcenter, each workcenter consists of several machines
+when new job arrives, workcenter/routing agent would dispatch it to a constituent machine
+either by a routing rule or trained parameters
+'''
 
 class workcenter:
     def __init__(self, env, index, m_list, *args, **kwargs):
@@ -47,12 +52,12 @@ class workcenter:
                 print("Rule assigned to workcenter {} is invalid !".format(self.wc_idx))
                 raise Exception
         else:
-            # default routing rule is earliest available machine
+            # default routing rule is earliest available rule
             self.job_routing = routing.EA
 
     # this function should be called after __init__ to avoid deadlock
     # after the creation of all machine instances and initial job list for each machine
-    # pass the list of machines to all machines so the shopfloor is established
+    # pass the list of machines to all machines, then the shopfloor is established
     # the initial jobs are allocated through job_initialization module
     def initialization(self, job_creator):
         self.job_creator = job_creator

@@ -19,6 +19,10 @@ import heterogeneity_creation
 import validation_S
 import validation_R
 
+'''
+experiment of independent routing agents
+'''
+
 class shopfloor:
     def __init__(self, env, span, m_no, wc_no, **kwargs):
         '''STEP 1: create environment instances and specifiy simulation span '''

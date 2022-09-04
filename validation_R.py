@@ -6,6 +6,10 @@ import torch.optim as optim
 import torch.nn.functional as F
 import brain_workcenter_R as brain
 
+'''
+load trained parameters in experiment
+'''
+
 class DRL_routing(brain.routing_brain):
     def __init__(self, env, job_creator, wc_list, **kwargs):
         # initialize the environment and the workcenter to be controlled

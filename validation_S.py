@@ -7,6 +7,10 @@ import torch.nn.functional as F
 import brain_machine_S as brain
 import sequencing
 
+'''
+Load the trained parameters of sequencing agent
+'''
+
 class DRL_sequencing(brain.sequencing_brain):
     def __init__(self, env, machine_list, job_creator, *args, **kwargs):
         # initialize the environment and the workcenter to be controlled
@@ -28,7 +32,7 @@ class DRL_sequencing(brain.sequencing_brain):
         # build action NN for each target machine
         if 'validated' in kwargs and kwargs['validated']:
             print("---> VALIDATION <---")
-            self.func_list = [sequencing.SPT,sequencing.WINQ,sequencing.MS,sequencing.CR]
+            self.func_list = [sequencing.SPT, sequencing.WINQ, sequencing.MS, sequencing.CR]
             self.output_size = len(self.func_list)
             if self.job_creator.pt_range[1]/self.job_creator.pt_range[0] > 2.5:
                 scenario = "H"
@@ -52,7 +56,7 @@ class DRL_sequencing(brain.sequencing_brain):
                 m.job_sequencing = self.action_sqc_rule
         elif 'ext_validated' in kwargs and kwargs['ext_validated']:
             print("---> EXTENDED VALIDATION <---")
-            self.func_list = [sequencing.SPT,sequencing.WINQ,sequencing.MS,sequencing.CR]
+            self.func_list = [sequencing.SPT, sequencing.WINQ, sequencing.MS, sequencing.CR]
             self.output_size = len(self.func_list)
             if self.job_creator.pt_range[1]/self.job_creator.pt_range[0] > 2.5:
                 scenario = "H"
@@ -74,19 +78,6 @@ class DRL_sequencing(brain.sequencing_brain):
             self.build_state = self.state_multi_channel
             for m in self.m_list:
                 m.job_sequencing = self.action_sqc_rule
-        elif 'MR_validated' in kwargs and kwargs['MR_validated']:
-            print("---> Validated Minimal repetition mode <---")
-            no_ops = len(self.job_creator.wc_list)
-            self.address_seed = "{}\\sequencing_models\\MR_validated_" + str(no_ops) + "ops.pt"
-            self.input_size =  self.state_direct(self.m_list[0].sequencing_data_generation()).size()
-            self.input_size_as_list = list(self.input_size)
-            self.output_size = 4
-            self.network = brain.network_value_based(self.input_size, self.output_size)
-            self.network.network.load_state_dict(torch.load(self.address_seed.format(sys.path[0])))
-            self.network.eval()  # must have this if you're loading a model, unnecessray for loading state_dict
-            self.build_state = self.state_direct
-            for m in self.m_list:
-                m.job_sequencing = self.action_direct
         else:
             print("WARNING: ANN TYPE NOT SPECIFIED !!!!")
 

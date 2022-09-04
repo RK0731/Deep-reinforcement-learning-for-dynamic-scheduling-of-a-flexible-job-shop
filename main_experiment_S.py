@@ -1,6 +1,6 @@
 import simpy
 import sys
-sys.path #sometimes need this to refresh the path
+sys.path 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import torch
@@ -94,7 +94,7 @@ class shopfloor:
         if 'DRL_S' in kwargs and kwargs['DRL_S']:
             print("---> DRL Sequencing mode ON <---")
             self.sequencing_brain = validation_S.DRL_sequencing(self.env, self.m_list, self.job_creator, \
-                show = 0, MC = 0, validated=1, reward_function = '')
+                show = 0,  validated=1, reward_function = '')
 
     def simulation(self):
         self.env.run()
@@ -104,7 +104,6 @@ spf_dict = {}
 production_record = {}
 # list of experiments
 benchmark = ['FIFO','ATC','AVPRO','COVERT','CR','EDD','LWKR','MDD','MOD','MON','MS','NPT','SPT','WINQ','LWKRSPT','LWKRMOD','PTWINQ','PTWINQS','DPTLWKRS','DPTWINQNPT']
-#benchmark = ['FIFO','ATC','AVPRO','GP_S1','GP_S2']
 title = benchmark + ['DRL_SA']
 span = 1000
 m_no = 6

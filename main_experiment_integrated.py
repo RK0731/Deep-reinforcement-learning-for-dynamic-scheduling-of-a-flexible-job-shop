@@ -103,16 +103,7 @@ class shopfloor:
             print("---> DRL Routing mode ON <---")
             self.routing_brain = validation_R.DRL_routing(self.env, self.job_creator, self.wc_list, \
             validated = 1)
-        # specify the routing agents
-        if 'Lang2020' in kwargs and kwargs['Lang2020']:
-            print("---> Lang Routing mode ON <---")
-            self.routing_brain = validation_R.DRL_routing(self.env, self.job_creator, self.wc_list, \
-            Lang2020 = 1)
-        # specify the routing agents
-        if 'Luo2020' in kwargs and kwargs['Luo2020']:
-            print("---> Luo Routing mode ON <---")
-            self.routing_brain = validation_R.DRL_routing(self.env, self.job_creator, self.wc_list, \
-            Luo2020 = 1)
+
 
     def simulation(self):
         self.env.run()
@@ -147,15 +138,15 @@ span = 1000
 m_no = 6
 wc_no = 3
 
-DRLs = ['Lang2020','Luo2020','DRL_R',"AS",'DRL_AS']
-title = [x[0]+'+'+x[1] for x in benchmark[:-2]] + ['GP1','GP2'] + ['Lang2020','Luo2020','RA alone','SA alone',"Integrated DRL"]
+DRLs = ['DRL_R',"AS",'DRL_AS']
+title = [x[0]+'+'+x[1] for x in benchmark[:-2]] + ['GP1','GP2'] + ['RA alone','SA alone',"Integrated DRL"]
 print(title)
 
 sum_record = []
 benchmark_record = []
 max_record = []
 rate_record = []
-iteration = 10
+iteration = 1
 # dont mess with above one
 export_result = 0
 

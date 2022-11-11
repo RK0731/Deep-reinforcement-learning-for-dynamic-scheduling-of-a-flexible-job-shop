@@ -2,7 +2,7 @@
 
 This repository includes the code of algorithms used in the following paper: 
 
-**Liu, R.**, Piplani, R., & Toro, C. (2022). Deep reinforcement learning for dynamic scheduling of a flexible job shop. International Journal of Production Research 2022 Vol. 60 Issue 13 Pages 4049-4069. https://doi.org/10.1080/00207543.2022.2058432
+**Liu, R.**, Piplani, R., & Toro, C. (2022). Deep reinforcement learning for dynamic scheduling of a flexible job shop. *International Journal of Production Research* 2022 Vol. 60 Issue 13 Pages 4049-4069. https://doi.org/10.1080/00207543.2022.2058432
 
 Free Eprint link: https://www.tandfonline.com/eprint/ITWCDGRSWFXS7G37PGBQ/full?target=10.1080/00207543.2022.2058432 
 
@@ -38,6 +38,6 @@ Data and trained parameters can be found in folders:
 
 ## User Guide
 
-To use our code as the benchmark, kindly refer to "routing_models" and "sequencing_models" folder for the trained parameters; use the class "network_validated" within "brain_machine_S.py" file to build the sequencing neural network; use "build_network_small" to "build_network_large" in "brain_workcenter-R" to build routing networks of different size. The state and action functions can also be found in "brain_...py" files.
+To use our code as the benchmark, kindly refer to "routing_models" and "sequencing_models" folder for the trained parameters for routing agent (RA) and sequencing agent (SA), respectively. Use the class "network_validated" within "brain_machine_S.py" file to build the sequencing neural network; use "build_network_small",  "build_network_medium", and "build_network_large" in "brain_workcenter-R" to build routing networks of different size. The state and action functions can also be found in "brain_XXX.py" files.
 
-An alternative way is to test your approach in our simulation model and context, you may create your algorithm and run the simulation in "main_experiment.py" for comparison. Please refer to the comments in each module to see how to interact with the simulation model.
+An alternative way is to test your approach in our simulation model and context, you may create your algorithm and run the simulation in "main_experiment_X.py" files for comparison. Please refer to the comments in each module to see how to use the simulation model.

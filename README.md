@@ -10,15 +10,17 @@ Feel free to revise the code, and good luck with your research!
 
 If you make use of the code in your work, please consider citing our paper (Bibtex below):
 
-    @article{liu2022deep,
-      title={Deep reinforcement learning for dynamic scheduling of a flexible job shop},
-      author={Liu, Renke and Piplani, Rajesh and Toro, Carlos},
-      journal={International Journal of Production Research},
-      volume={60}
-      number={13}
-      pages={4049--4069},
-      year={2022},
-      publisher={Taylor \& Francis}
+    @article{Liu_Piplani_Toro_2022,
+    author = {Liu, Renke and Piplani, Rajesh and Toro, Carlos},
+    title = {Deep reinforcement learning for dynamic scheduling of a flexible job shop},
+    journal = {International Journal of Production Research},
+    volume = {60},
+    number = {13},
+    pages = {4049-4069},
+    year = {2022},
+    publisher = {Taylor & Francis},
+    doi = {10.1080/00207543.2022.2058432},
+    URL = {https://doi.org/10.1080/00207543.2022.2058432}
     }
 
 ## Repository Overview

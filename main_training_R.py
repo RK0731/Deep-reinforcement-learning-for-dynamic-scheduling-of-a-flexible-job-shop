@@ -74,7 +74,7 @@ class shopfloor:
 # create the environment instance for simulation
 env = simpy.Environment()
 # create the shop floor instance
-span = 10000
+span = 100000
 m_no = 6
 wc_no = 3
 spf = shopfloor(env, span, m_no, wc_no)

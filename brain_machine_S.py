@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import sys
+import os
 import copy
 import matplotlib.pyplot as plt
 import torch
@@ -64,7 +65,7 @@ class sequencing_brain:
             self.input_size = len(self.state_multi_channel(self.m_list[0].sequencing_data_generation()))
             self.sequencing_action_NN = network_validated(self.input_size, self.output_size)
             self.sequencing_target_NN = copy.deepcopy(self.sequencing_action_NN)
-            self.address_seed = "{}\\sequencing_models\\MC_rwd"+str(kwargs['reward_function'])+".pt"
+            self.address_seed = os.path.join("sequencing_models", "MC_rwd_{}{}".format(str(kwargs['reward_function']), ".pt"))
             self.build_state = self.state_multi_channel
             self.train = self.train_validated
             self.action_DRL = self.action_sqc_rule
@@ -75,15 +76,15 @@ class sequencing_brain:
 
         if "trained_parameter" in kwargs: # import trained parameters for better efficiency
             for m in self.target_m_list:
-                import_address = "{}\\sequencing_models\\validated_"+kwargs["trained_parameter"]+".pt"
-                self.sequencing_action_NN.network.load_state_dict(torch.load(import_address.format(sys.path[0])))
+                import_address = os.path.join("sequencing_models", "validated_{}{}".format(str(kwargs["trained_parameter"]), ".pt"))
+                self.sequencing_action_NN.network.load_state_dict(torch.load(import_address))
             print("IMPORT FROM:", import_address)
 
         '''
         specify new address seed for storing the trained parameters
         '''
         if 'store_to' in kwargs:
-            self.address_seed = "{}\\sequencing_models\\" + str(kwargs['address_seed']) + ".pt"
+            self.address_seed = os.path.join("sequencing_models", str(kwargs['address_seed']) + ".pt")
             print("New address seed:", self.address_seed)
         # initialize initial replay memory, a dictionary that contains empty lists of replay memory for machines
         self.rep_memo = []
@@ -102,18 +103,9 @@ class sequencing_brain:
         self.loss_time_record = []
         self.loss_record = []
         # processes
-        if kwargs['IQL'] or kwargs['I_DDQN']:
-            self.env.process(self.training_process_independent())
-            self.env.process(self.update_rep_memo_independent_process())
-            self.rep_memo = {} # replace the list by dict
-            for m in self.target_m_list:
-                self.rep_memo[m.m_idx] = []
-            self.build_initial_rep_memo = self.build_initial_rep_memo_independent
-            #self.rep_memo_size /= self.m_no # size for independent replay memory
-        else: # default mode is parameter sharing
-            self.env.process(self.training_process_parameter_sharing())
-            self.env.process(self.update_rep_memo_parameter_sharing_process())
-            self.build_initial_rep_memo = self.build_initial_rep_memo_parameter_sharing
+        self.env.process(self.training_process_parameter_sharing())
+        self.env.process(self.update_rep_memo_parameter_sharing_process())
+        self.build_initial_rep_memo = self.build_initial_rep_memo_parameter_sharing
         self.env.process(self.warm_up_process())
         self.env.process(self.update_training_setting_process())
         #self.env.process(self.update_learning_rate_process())
@@ -381,7 +373,7 @@ class sequencing_brain:
         print(tabulate(self.rep_memo, headers = ['s_t','a_t','s_t+1','r_t']))
         print('FINAL - size of replay memory:',len(self.rep_memo))
         # specify the address to store the model / state_dict
-        address = self.address_seed.format(sys.path[0])
+        address = self.address_seed
         # save the parameters of policy / action network after training
         torch.save(self.sequencing_action_NN.network.state_dict(), address)
         # after the training, print out the setting of DRL architecture

@@ -1,6 +1,4 @@
 import simpy
-import sys
-sys.path #sometimes need this to refresh the path
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import torch
@@ -48,8 +46,8 @@ class shopfloor:
         #print(self.wc_list)
 
         '''STEP 3: initialize the job creator'''
-        self.job_creator = job_creation.creation\
-        (self.env, self.span, self.m_list, self.wc_list, [5,26], 3, 0.9, random_seed = True)
+        self.job_creator = job_creation.creation(
+            self.env, self.span, self.m_list, self.wc_list, [5,26], 3, 0.9, random_seed = True)
 
         '''STEP 4: initialize machines and work centers'''
         for wc in self.wc_list:
@@ -58,11 +56,13 @@ class shopfloor:
         for i,m in enumerate(self.m_list):
             m.print_info = 0
             wc_idx = int(i/m_per_wc)
-            m.initialization(self.m_list,self.wc_list,self.job_creator,self.wc_list[wc_idx])
+            m.initialization(
+                self.m_list, self.wc_list, self.job_creator, self.wc_list[wc_idx])
 
         '''STEP 5: set up the brains for machines'''
-        self.sqc_brain = brain_machine_S.sequencing_brain(self.env, self.job_creator, self.m_list, self.m_list, self.span/10, self.span, \
-        MC = 1,  reward_function = 1)
+        self.sqc_brain = brain_machine_S.sequencing_brain(
+            self.env, self.job_creator, self.m_list, self.m_list, 
+            self.span/10, self.span, MC = 1,  reward_function = 1)
 
         '''STEP 6: the simulaiton'''
         env.run()

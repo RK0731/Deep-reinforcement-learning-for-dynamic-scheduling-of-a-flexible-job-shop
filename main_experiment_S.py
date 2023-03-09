@@ -1,14 +1,14 @@
 import simpy
-import sys
-sys.path 
+import os
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import torch
 import numpy as np
 from tabulate import tabulate
 import pandas as pd
 from pandas import DataFrame
 
+import job_creation
+import validation_S
 import agent_machine
 import agent_workcenter
 import sequencing
@@ -113,7 +113,7 @@ benchmark_record = []
 max_record = []
 rate_record = []
 iteration = 1
-export_result = 0
+export_result = True
 
 for run in range(iteration):
     print('******************* ITERATION-{} *******************'.format(run))
@@ -166,8 +166,10 @@ for idx in np.argmin(sum_record,axis=1):
     winning_rate[idx] += 1
 winning_rate = np.around(winning_rate/iteration*100,2)
 for rank,rule in enumerate(rank):
-    print("{}, avg.: {} | max: {} | %: {}% | tardy %: {}% | winning rate: {}/{}%"\
-    .format(title[rule],avg[rule],max[rule],ratio[rule],tardy_rate[rule],winning_rate_b[rule],winning_rate[rule]))
+    print(
+        "{}, avg.: {} | max: {} | %: {}% | tardy %: {}% | winning rate: {}/{}%"
+        .format(title[rule], avg[rule], max[rule], ratio[rule], tardy_rate[rule], winning_rate_b[rule], winning_rate[rule])
+        )
 
 if export_result:
     df_win_rate = DataFrame([winning_rate], columns=title)
@@ -179,10 +181,10 @@ if export_result:
     df_max = DataFrame(max_record, columns=title)
     #print(df_max)
     df_before_win_rate = DataFrame([winning_rate_b], columns=title)
-    address = sys.path[0]+'\\experiment_result\\RAW_SA_experiment.xlsx'
-    Excelwriter = pd.ExcelWriter(address,engine="xlsxwriter")
+    address = os.path.join(os.getcwd(), 'experiment_result', 'RAW_SA_experiment.xlsx')
+    Excelwriter = pd.ExcelWriter(address, engine = "xlsxwriter")
     dflist = [df_win_rate, df_sum, df_tardy_rate, df_max, df_before_win_rate]
-    sheetname = ['win rate','sum', 'tardy rate', 'maximum','before win rate']
+    sheetname = ['win rate', 'sum', 'tardy rate', 'maximum', 'before win rate']
 
     for i,df in enumerate(dflist):
         df.to_excel(Excelwriter, sheet_name=sheetname[i], index=False)

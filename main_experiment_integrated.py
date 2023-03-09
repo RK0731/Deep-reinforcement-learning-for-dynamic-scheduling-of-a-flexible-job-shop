@@ -1,6 +1,5 @@
 import simpy
-import sys
-sys.path #sometimes need this to refresh the path
+import os
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import torch
@@ -88,9 +87,9 @@ class shopfloor:
                 except:
                     print("Rule assigned to workcenter {} is invalid !".format(wc.wc_idx))
                     raise Exception
-        # specify the architecture of DRL
+        # specify the framework of DRL
         if 'DRL_AS' in kwargs and kwargs['DRL_AS']:
-            print("---> Overall DRL_SA mode ON <---")
+            print("---> Integrated DRL mode ON <---")
             kwargs['DRL_R'] = True
             kwargs['AS'] = True
         # specify the sequencing agents
@@ -103,16 +102,7 @@ class shopfloor:
             print("---> DRL Routing mode ON <---")
             self.routing_brain = validation_R.DRL_routing(self.env, self.job_creator, self.wc_list, \
             validated = 1)
-        # specify the routing agents
-        if 'Lang2020' in kwargs and kwargs['Lang2020']:
-            print("---> Lang Routing mode ON <---")
-            self.routing_brain = validation_R.DRL_routing(self.env, self.job_creator, self.wc_list, \
-            Lang2020 = 1)
-        # specify the routing agents
-        if 'Luo2020' in kwargs and kwargs['Luo2020']:
-            print("---> Luo Routing mode ON <---")
-            self.routing_brain = validation_R.DRL_routing(self.env, self.job_creator, self.wc_list, \
-            Luo2020 = 1)
+
 
     def simulation(self):
         self.env.run()
@@ -147,17 +137,17 @@ span = 1000
 m_no = 6
 wc_no = 3
 
-DRLs = ['Lang2020','Luo2020','DRL_R',"AS",'DRL_AS']
-title = [x[0]+'+'+x[1] for x in benchmark[:-2]] + ['GP1','GP2'] + ['Lang2020','Luo2020','RA alone','SA alone',"Integrated DRL"]
+DRLs = ['DRL_R',"AS",'DRL_AS']
+title = [x[0]+'+'+x[1] for x in benchmark[:-2]] + ['GP1','GP2'] + ['RA alone','SA alone',"Integrated DRL"]
 print(title)
 
 sum_record = []
 benchmark_record = []
 max_record = []
 rate_record = []
-iteration = 10
+iteration = 1
 # dont mess with above one
-export_result = 0
+export_result = True
 
 for run in range(iteration):
     print('******************* ITERATION-{} *******************'.format(run))
@@ -223,10 +213,10 @@ if export_result:
     df_max = DataFrame(max_record, columns=title)
     #print(df_max)
     df_before_win_rate = DataFrame([winning_rate_b], columns=title)
-    address = sys.path[0]+'\\experiment_result\\RAW_integrated_experiment.xlsx'
-    Excelwriter = pd.ExcelWriter(address,engine="xlsxwriter")
+    address = os.path.join(os.getcwd(), 'experiment_result', 'RAW_integrated_experiment.xlsx')
+    Excelwriter = pd.ExcelWriter(address, engine = "xlsxwriter")    
     dflist = [df_win_rate, df_sum, df_tardy_rate, df_max, df_before_win_rate]
-    sheetname = ['win rate','sum', 'tardy rate', 'maximum','before win rate']
+    sheetname = ['win rate', 'sum', 'tardy rate', 'maximum', 'before win rate']
 
     for i,df in enumerate(dflist):
         df.to_excel(Excelwriter, sheet_name=sheetname[i], index=False)

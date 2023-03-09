@@ -1,5 +1,5 @@
 import numpy as np
-import sys
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -26,29 +26,49 @@ class DRL_routing(brain.routing_brain):
         # action space, consists of all selectable machines
         self.output_size = self.m_per_wc
         # specify the path to store the model
-        self.path = sys.path[0]
         # specify the ANN and state function
         if 'validated' in kwargs and kwargs['validated']:
             if self.m_per_wc == 2:
-                self.address_seed = "{}\\routing_models\\validated_2machine_small.pt"
+                self.address_seed = os.path.join("routing_models", "validated_2machine_small.pt")
                 self.action_NN = brain.build_network_small(self.input_size, self.output_size)
             if self.m_per_wc == 3:
-                self.address_seed = "{}\\routing_models\\validated_3machine_medium.pt"
+                self.address_seed = os.path.join("routing_models", "validated_3machine_medium.pt")
                 self.action_NN = brain.build_network_medium(self.input_size, self.output_size)
             if self.m_per_wc == 4:
-                self.address_seed = "{}\\routing_models\\validated_4machine_large.pt"
+                self.address_seed = os.path.join("routing_models", "validated_4machine_large.pt")
                 self.action_NN = brain.build_network_large(self.input_size, self.output_size)
             self.build_state = self.state_deeper
-            self.action_NN.load_state_dict(torch.load(self.address_seed.format(sys.path[0])))
+            self.action_NN.load_state_dict(torch.load(self.address_seed))
             self.action_NN.eval()  # must have this if you're loading a model, unnecessray for loading state_dict
             print("---> VALIDATION mode ON <---")
         elif 'TEST' in kwargs and kwargs['TEST']:
             self.address_seed = "{}\\routing_models\\TEST_state_dict.pt"
             self.action_NN = brain.build_network_TEST(self.input_size, self.output_size)
             self.build_state = self.state_deeper
-            self.action_NN.load_state_dict(torch.load(self.address_seed.format(sys.path[0])))
+            self.action_NN.load_state_dict(torch.load(self.address_seed))
             self.action_NN.eval()  # must have this if you're loading a model, unnecessray for loading state_dict
             print("---> TEST mode ON <---")
+        else:
+            # reward mechanism
+            if 'global_reward' in kwargs and kwargs['global_reward']:
+                suffix = '_globalR.pt'
+            else:
+                suffix = '.pt'
+            # size of work center
+            if self.m_per_wc == 2:
+                self.action_NN = brain.build_network_small(self.input_size, self.output_size)
+                self.address_seed = "{}\\routing_models\\small_state_dict"+'{}wc{}m'.format(len(wc_list),all_m_no) +suffix
+            elif self.m_per_wc == 3:
+                self.action_NN = brain.build_network_medium(self.input_size, self.output_size)
+                self.address_seed = "{}\\routing_models\\medium_state_dict"+'{}wc{}m'.format(len(wc_list),all_m_no) +suffix
+            elif self.m_per_wc == 4:
+                self.action_NN = brain.build_network_large(self.input_size, self.output_size)
+                self.address_seed = "{}\\routing_models\\large_state_dict"+'{}wc{}m'.format(len(wc_list),all_m_no) +suffix
+            print("---> default / global R = {} <---".format(bool('global_reward' in kwargs and kwargs['global_reward'])))
+            self.build_state = self.state_deeper
+            self.action_NN.load_state_dict(torch.load(self.address_seed))
+            self.action_NN.eval()  # must have this if you're loading a model, unnecessray for loading state_dict
+
 
     def action_by_DRL(self, job_idx, routing_data, job_pt, job_slack, wc_idx, *args):
         s_t = self.build_state(routing_data, job_pt, job_slack, wc_idx)

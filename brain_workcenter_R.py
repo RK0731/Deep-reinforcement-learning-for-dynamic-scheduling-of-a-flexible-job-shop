@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import sys
+import os
 import copy
 import matplotlib.pyplot as plt
 import torch
@@ -26,8 +26,6 @@ class routing_brain:
         print(self.wc_list[0].m_list,self.m_per_wc)
         for m in m_list:
             m.routing_learning_event.succeed()
-        # specify the path to store the model
-        self.path = sys.path[0]
         # state space, eah machine generate 3 types of data, along with the processing time of arriving job, and job slack
         self.input_size = self.m_per_wc*3 + 3
         # action space, consists of all selectable machines
@@ -38,13 +36,13 @@ class routing_brain:
         print("---> DEFAULT mode ON <---")
         if self.m_per_wc == 2:
             self.routing_action_NN = build_network_small(self.input_size, self.output_size)
-            self.address_seed = "{}\\routing_models\\small_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+            self.address_seed = os.path.join("routing_models", "small_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list)))
         elif self.m_per_wc == 3:
             self.routing_action_NN = build_network_medium(self.input_size, self.output_size)
-            self.address_seed = "{}\\routing_models\\medium_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+            self.address_seed = os.path.join("routing_models", "medium_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list)))
         elif self.m_per_wc == 4:
             self.routing_action_NN = build_network_large(self.input_size, self.output_size)
-            self.address_seed = "{}\\routing_models\\large_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list))
+            self.address_seed = os.path.join("routing_models", "large_state_dict"+'{}wc{}m'.format(len(wc_list),len(m_list)))
         # shared functions
         self.routing_target_NN = copy.deepcopy(self.routing_action_NN)
         self.build_state = self.state_deeper
@@ -299,7 +297,7 @@ class routing_brain:
         print('Final replay_memory is:\n','size:',len(self.rep_memo),\
         tabulate(self.rep_memo, headers = ['s_t','a_t','r_t','s_t+1']))
         # save the parameters of policy / action network after training
-        torch.save(self.routing_action_NN.state_dict(), self.address_seed.format(sys.path[0]))
+        torch.save(self.routing_action_NN.state_dict(), self.address_seed)
         print("Training terminated, store trained parameters to: {}".format(self.address_seed))
 
     # synchronize the ANN and TNN, and some settings
@@ -455,7 +453,7 @@ class routing_brain:
         plt.show()
         # save the figure if required
         if 'save' in kwargs and kwargs['save']:
-            address = sys.path[0]+"//experiment_result//RA_loss_{}wc_{}m.png".format(len(self.job_creator.wc_list),len(self.m_list))
+            address = os.path.join("experiment_result", "RA_loss_{}wc_{}m.png".format(len(self.job_creator.wc_list), len(self.m_list)))
             fig.savefig(address, dpi=500, bbox_inches='tight')
             print('figure saved to'+address)
         return
@@ -487,7 +485,7 @@ class routing_brain:
         # save the figure if required
         fig.subplots_adjust(top=0.5, bottom=0.5, right=0.9)
         if 'save' in kwargs and kwargs['save']:
-            fig.savefig(sys.path[0]+"//experiment_result//RA_reward_{}wc_{}m.png".format(len(self.job_creator.wc_list),len(self.m_list)), dpi=500, bbox_inches='tight')
+            fig.savefig(os.path.join("experiment_result", "RA_reward_{}wc_{}m.png".format(len(self.job_creator.wc_list),len(self.m_list))), dpi=500, bbox_inches='tight')
         return
 
 

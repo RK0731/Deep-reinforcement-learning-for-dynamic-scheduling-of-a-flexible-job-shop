@@ -1,9 +1,7 @@
 import simpy
-import sys
-sys.path 
+import os
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import torch
 import numpy as np
 from tabulate import tabulate
 import pandas as pd
@@ -125,7 +123,7 @@ max_record = []
 rate_record = []
 iteration = 1
 # dont mess with above one-
-export_result = 1
+export_result = True
 
 for run in range(iteration):
     print('******************* ITERATION-{} *******************'.format(run))
@@ -191,8 +189,8 @@ if export_result:
     df_max = DataFrame(max_record, columns=title)
     #print(df_max)
     df_before_win_rate = DataFrame([winning_rate_b], columns=title)
-    address = sys.path[0]+'\\experiment_result\\RAW_RA_val.xlsx'
-    Excelwriter = pd.ExcelWriter(address,engine="xlsxwriter")
+    address = os.path.join(os.getcwd(), 'experiment_result', 'RAW_RA_val.xlsx')
+    Excelwriter = pd.ExcelWriter(address, engine = "xlsxwriter")    
     dflist = [df_win_rate, df_sum, df_tardy_rate, df_max, df_before_win_rate]
     sheetname = ['win rate','sum', 'tardy rate', 'maximum','before win rate']
 

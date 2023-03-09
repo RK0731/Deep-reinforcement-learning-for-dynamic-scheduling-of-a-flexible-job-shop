@@ -1,5 +1,5 @@
 import numpy as np
-import sys
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -46,10 +46,10 @@ class DRL_sequencing(brain.sequencing_brain):
                 scenario += str(kwargs['reward_function'])
             except:
                 pass
-            self.address_seed = "{}\\sequencing_models\\validated_" + scenario + ".pt"
+            self.address_seed = os.path.join("sequencing_models", "validated_"+scenario+".pt")
             self.input_size = len(self.state_multi_channel(self.m_list[0].sequencing_data_generation()))
             self.network = brain.network_validated(self.input_size, self.output_size)
-            self.network.network.load_state_dict(torch.load(self.address_seed.format(sys.path[0])))
+            self.network.network.load_state_dict(torch.load(self.address_seed))
             self.network.eval()  # must have this if you're loading a model, unnecessray for loading state_dict
             self.build_state = self.state_multi_channel
             for m in self.m_list:
@@ -70,10 +70,10 @@ class DRL_sequencing(brain.sequencing_brain):
                 scenario += str(kwargs['reward_function'])
             except:
                 pass
-            self.address_seed = "{}\\sequencing_models\\validated_" + scenario + "_ext{}.pt".format(self.job_creator.no_wcs)
+            self.address_seed = os.path.join("sequencing_models", "validated_"+scenario+"_ext{}.pt".format(self.job_creator.no_wcs))
             self.input_size = len(self.state_multi_channel(self.m_list[0].sequencing_data_generation()))
             self.network = brain.network_validated(self.input_size, self.output_size)
-            self.network.network.load_state_dict(torch.load(self.address_seed.format(sys.path[0])))
+            self.network.network.load_state_dict(torch.load(self.address_seed))
             self.network.eval()  # must have this if you're loading a model, unnecessray for loading state_dict
             self.build_state = self.state_multi_channel
             for m in self.m_list:

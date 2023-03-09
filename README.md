@@ -26,6 +26,7 @@ If you make use of the code in your work, please consider citing our paper (Bibt
 ## Repository Overview
 
 This repo includes the code of simulation model, learning algorithm, and experimentation. Those files can be identified by their prefix or suffix:
+
 > 1. "agent": assets on shop floor: machines and work centers;
 > 2. "brain": learning algorithm for job sequencing and machine routing;
 > 3. "creation": dynamic events on shop floor, such as job arrival and machine breakdown;
@@ -34,12 +35,21 @@ This repo includes the code of simulation model, learning algorithm, and experim
 > 6. "validation": modules to import trained parameters for experiment.
 
 Data and trained parameters can be found in folders:
+
 > 1. "experiment_result": results of experiments in dynamic environments;
 > 2. "routing models": trained routing agent parameters;
 > 3. "sequencing_models": trained sequencing agent parameters.
 
 ## User Guide
 
-To use our code as the benchmark, kindly refer to "routing_models" and "sequencing_models" folder for the trained parameters for routing agent (RA) and sequencing agent (SA), respectively. Use the class "network_validated" within "brain_machine_S.py" file to build the sequencing neural network; use "build_network_small",  "build_network_medium", and "build_network_large" in "brain_workcenter-R" to build routing networks of different size. The state and action functions can also be found in "brain_XXX.py" files.
+Wanna use our code as the benchmark? Kindly refer to "routing_models" and "sequencing_models" folders for the trained parameters for routing agent (RA) and sequencing agent (SA), respectively.
 
-An alternative way is to test your approach in our simulation model and context, you may create your algorithm and run the simulation in "main_experiment_X.py" files for comparison. Please refer to the comments in each module to see how to use the simulation model.
+To use trained models:
+
+Use the class **"network_validated"** within **"brain_machine_S.py"** module to build the sequencing neural network
+
+Use **"build_network_small",  "build_network_medium", and "build_network_large"** classes in **"brain_workcenter-R"** module to build routing networks of different size. 
+
+The state and action functions can also be found in "brain_machine_S.py" or "brain_workcenter_R.py".
+
+An alternative way is to test your approach in our simulation model and context, you may create your algorithm and run the simulation in **"main_experiment_R.py", "main_experiment_S.py", "main_experiment_integrated.py"** files for comparison. Please refer to the comments in each module to see how to use the simulation model.
